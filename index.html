@@ -1,0 +1,171 @@
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clicking Game</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif; /* Friendly font */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #e0f7fa; /* Light background */
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 300px;
+            transition: transform 0.2s; /* Smooth hover effect */
+        }
+        .container:hover {
+            transform: scale(1.03);
+        }
+        h1 {
+            font-size: 28px;
+            color: #00796b; /* Dark teal */
+        }
+        #score, #gemCount {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #f57c00; /* Orange accent */
+        }
+        .button {
+            background-color: #0288d1; /* Blue */
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 18px;
+            margin: 8px 4px;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: background-color 0.3s; /* Smooth transition */
+        }
+        .button:hover {
+            background-color: #03a9f4; /* Light blue on hover */
+        }
+        .button:disabled {
+            background-color: #b0bec5; /* Grey */
+        }
+        .instructions {
+            font-size: 14px;
+            color: #757575; /* Grey */
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f1f8e9; /* Light green */
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Clicking Game</h1>
+        <button id="clickButton" class="button">Click Me!</button>
+        <p id="score">Score: 0</p>
+        <button id="rebirthButton" class="button">Rebirth!</button>
+        <button id="resetButton" class="button">Reset Game</button>
+        <p id="gemCount">Gems: 0</p>
+        <button id="upgradeButton" class="button">Upgrade Clicks!</button>
+
+        <div class="instructions">
+            <p>Click to increase your score!</p>
+            <p>Use your gems to upgrade your clicks!</p>
+        </div>
+
+        <script>
+            const clickButton = document.getElementById("clickButton");
+            const scoreElement = document.getElementById("score");
+            const rebirthButton = document.getElementById("rebirthButton");
+            const resetButton = document.getElementById("resetButton");
+            const gemCountElement = document.getElementById("gemCount");
+            const upgradeButton = document.getElementById("upgradeButton");
+
+            let score = 0;
+            let rebirthClicks = 100;
+            let rebirthMultiplier = 1;
+            let gems = 0;
+            let clickMultiplier = 1;
+
+            function checkGameOver() {
+                if (isNaN(score) || score < 0) {
+                    alert("Game Over! You reached NaN clicks.");
+                    showSuperRebirth();
+                }
+            }
+
+            function showSuperRebirth() {
+                if (confirm("Would you like to perform a Super Rebirth? This will reset your progress but you will receive double gems on your next rebirth.")) {
+                    // Reset all variables and give the player a new start
+                    score = 0;
+                    rebirthClicks = 100;
+                    rebirthMultiplier = 1;
+                    gems = 0;
+                    clickMultiplier = 1;
+                    scoreElement.textContent = "Score: " + score;
+                    gemCountElement.textContent = "Gems: " + gems;
+                }
+            }
+
+            clickButton.addEventListener("click", () => {
+                score += rebirthMultiplier * clickMultiplier;
+                scoreElement.textContent = "Score: " + score;
+                checkGameOver();
+            });
+
+            rebirthButton.addEventListener("click", () => {
+                let rebirthsAffordable = Math.floor(score / rebirthClicks);
+                if (rebirthsAffordable > 0) {
+                    score -= rebirthsAffordable * rebirthClicks;
+                    gems += (rebirthsAffordable * 20) * 2; // Double gems on rebirth
+                    rebirthMultiplier *= Math.pow(2, rebirthsAffordable);
+                    rebirthClicks *= Math.pow(2, rebirthsAffordable);
+                    scoreElement.textContent = "Score: " + score;
+                    gemCountElement.textContent = "Gems: " + gems;
+                }
+            });
+
+            upgradeButton.addEventListener("click", () => {
+                const upgradeCost = 100;
+                let upgradesAffordable = Math.floor(gems / upgradeCost);
+
+                if (upgradesAffordable > 0) {
+                    gems -= upgradesAffordable * upgradeCost;
+                    clickMultiplier *= Math.pow(10, upgradesAffordable);
+                    rebirthMultiplier = 1; // Reset rebirth multiplier
+                    rebirthClicks = 100; // Reset rebirth clicks requirement
+                    score = 0; // Reset score on upgrade
+                    scoreElement.textContent = "Score: " + score;
+                    gemCountElement.textContent = "Gems: " + gems;
+                }
+            });
+
+            resetButton.addEventListener("click", () => {
+                // Reset the game completely
+                score = 0;
+                rebirthClicks = 100;
+                rebirthMultiplier = 1;
+                gems = 0;
+                clickMultiplier = 1;
+                scoreElement.textContent = "Score: " + score;
+                gemCountElement.textContent = "Gems: " + gems;
+                alert("Game has been reset.");
+            });
+
+            let cps = 0; // Clicks per second
+            setInterval(function() {
+                score += cps * clickMultiplier;
+                scoreElement.textContent = "Score: " + score;
+                checkGameOver(); // Check for game over on each score update
+            }, 1000);
+        </script>
+    </div>
+</body>
+</html>
